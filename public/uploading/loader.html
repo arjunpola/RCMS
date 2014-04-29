@@ -1,0 +1,44 @@
+<style>
+body {
+  background: darken(#82B3E8, 40%);
+  font-family: 'Nobile', sans-serif;
+  font-size: 2em;
+}
+.loader {
+  display: flex;
+  align-items: center;
+  height: 400px;
+  margin: 0 auto;
+  width: 700px;
+}
+.loader__item {
+	animation: fadeIn .25s forwards,
+    pulse 4s infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+	float: left;
+	height: 100px;
+	opacity: 0;
+  width: 100px;
+}
+
+@for $i from 1 through 7 {
+  .loader__item:nth-child(#{$i}) {
+    animation-delay: $i * .25s;
+  }
+}
+
+@keyframes fadeIn {
+	from {opacity: 0;}
+	to {opacity: 1;}
+}
+@keyframes pulse {
+  from {background: #82B3E8; color: darken(#82B3E8, 60%); text-shadow: 1px 1px 1px white;}
+  to {background:lighten(#82B3E8, 20%); color:white; text-shadow: 0 0 0 transparent;}
+}
+@keyframes fadeIn {
+  from {opacity: 0; margin-top: 100px;}
+	to {opacity: 1; margin-top: 0;}
+}
+</style>
