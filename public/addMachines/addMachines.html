@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+	<head>
+		<title>E J C S</title>
+		<link rel="shortcut icon" href="../favicon.ico">
+		<link rel="stylesheet" type="text/css" href="css/default.css" />
+		<link rel="stylesheet" type="text/css" href="css/component.css" />
+		<script src="js/modernizr.custom.js"></script>
+		<script type="text/javascript">
+		function logout()
+		{
+			window.location='http://localhost:3000/postlogin/';
+		}
+		function validate()
+		{
+			if(document.forms["myform"]["machine_name"].value=="" || document.forms["myform"]["ip_addr"].value=="" || document.forms["myform"]["loom_type"].value=="")
+			{
+				alert("Fields Cannot be Empty");
+			}
+			ValidateIPaddress(document.body.ip_addr);
+		}
+		function ValidateIPaddress(inputText)  
+		 {  
+				 var ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;  
+				 if(inputText.value.match(ipformat))  
+				 {  
+					return true;  
+				 }  
+				 else  
+				 {  
+					 alert("You have entered an invalid IP address!");  
+					 document.body.ip_addr.focus();
+					 return false;  
+				 }  
+		 }  
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<header class="clearfix">
+				<h1>Add Machine </h1>
+				<nav>
+					<a target="_blank" class="bp-icon bp-icon-prev" onClick="logout()" data-info="Go Back"><span>Back</span></a>
+					<!--<a href="#" class="bp-icon bp-icon-next" data-info="Next"><span>Next</span></a>	-->			</nav>
+			</header>	
+			<div class="main">
+				<form name="myform" class="cbp-mc-form" method="post" action="add">
+					<div class="cbp-mc-column">
+						<label for="first_name">Machine Name</label>
+	  					<input type="text" id="machine_name" name="machine_name" placeholder="MCB10">
+	  					<label for="last_name">IP Address</label>
+	  					<input type="text" id="ip_addr" name="ip_addr" placeholder="192.168.1.10" class="numeric">
+						<label for="phone">Loom Type</label>
+	  					<input type="text" id="loom_type" name="loom_type" placeholder="Type 3">
+	  				</div>
+	  		  				<!-- <div class="cbp-mc-submit-wrap"><input class="cbp-mc-submit" type="button" name="check" id="check" value="Check" onclick="updateForm();"/></div> -->
+	  				<div class="cbp-mc-submit-wrap"><input name="ADD" type="submit" class="cbp-mc-submit" id="submit" onClick="validate()" value="Add This Machine" /></div>
+				</form>
+			</div>
+		</div>
+		<!-- <script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script type="text/javascript">
+			function updateForm(){
+			$mob = $('#phone').val();
+			alert($mob);
+			}
+		</script> -->
+	</body>
+</html>

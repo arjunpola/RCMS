@@ -1,0 +1,217 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!-- TemplateBeginEditable name="doctitle" -->
+<title>LOOM CONTROL</title>
+
+<style type="text/css">
+
+.img-wrap{
+position:relative;
+overflow: scroll;
+max-height: 500px;
+max-width: 500px;
+top: 0;
+left: 0;
+}
+</style>
+
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script>
+	var socket = io.connect('http://localhost:3000');
+	
+/*
+	socket.on('PrintStatus',function(data){
+		console.log(data['update']);
+		newLine = data['update'];
+		if(curLine == newLine)
+			console.log("Dont Update");
+		else{
+			console.log("Update Image");
+			colorLines();
+		}
+	});
+*/
+	socket.on('news',function(data)
+	{
+		console.log(data);
+	});
+	
+	socket.on('DrawImage',function(data){
+		console.log(data);
+
+
+	});
+
+		
+	//socket.emit("otherEvent",{data:"myData"});
+	
+</script>
+
+
+</head>
+
+<body>
+<div class="img-wrap">
+	<!-- <img id = "cvs-src" width="800" height="800" src="Pola.jpg" /> -->
+	<canvas id="mcanvas" width="500" height="500"></canvas>
+	</div>
+	
+	<script type="text/javascript">
+		var canvas = document.getElementById("mcanvas");
+		var ctx = canvas.getContext('2d');
+		var r = new FileReader();
+		var loomfile = "";
+	// Check for the various File API support.
+	if (window.File && window.FileReader && window.FileList && window.Blob) {
+	  //do your stuff!
+	   /*  document.getElementById('fileinput').addEventListener('change', readSingleFile, false); */
+    
+	} else {
+	  alert('The File APIs are not fully supported by your browser.');
+	}
+	
+
+	//file reading contents
+	  function readSingleFile(file) {
+    //Retrieve the first (and only!) File from the FileList object
+    console.log("File Reader Initiated. F= "+file);
+    var f = file; 
+
+/*
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+	var f = fso.OpenTextFile(file, 1, false, 0);
+	var fText = txtFile.Read(f.length);
+	txtFile.Close();
+	fso = null;
+*/
+    
+    if (f) {
+      r.onload = function(e) { 
+	  
+		ar=e.target.result;
+		buft=new Uint8Array(ar);
+		
+		//start reading header
+		No_of_Legs =7;
+		No_Of_Hooks = 672;
+		loomtype=buft[0] + buft[1] *  256;
+		LC = buft[2] + buft[3] *  256;
+		No_of_LoomcontrollerCards=LC; //reassignment
+		 
+		max_weaveno = buft[4] + (buft[5] * 256);	
+		No_of_Weavelines=max_weaveno;//reassignment//reassignment//reassignment
+		 
+		if (loomtype == 0 || loomtype == 64)
+				Size_of_Leg = 64;
+		else
+			Size_of_Leg = loomtype;
+			
+			
+			//loom configuration calculation
+			Size_of_LoomcontrollerCard = No_of_Legs * Size_of_Leg;
+			No_Of_CardsPerLeg = Size_of_Leg / 8;
+			No_Of_BytesPerCard = No_Of_CardsPerLeg * 7;
+			if (No_Of_BytesPerCard <= 64)
+                    No_Of_BytesPerCard = 64;
+			
+		if((No_of_Legs * Size_of_Leg * LC) != No_Of_Hooks)
+		{
+			console.log(No_of_Legs * Size_of_Leg * LC);
+			alert("\nInValid LMKFile....\n");	
+		}
+		else
+		{
+			alert("valid lmk file");
+		}
+		var xx=18;
+		var data = new Array(No_of_Weavelines*No_of_LoomcontrollerCards);
+                for (i = 0; i < (No_of_Weavelines*No_of_LoomcontrollerCards); i++)
+                {
+                    
+                    //data[i] = new byte[64];hcjcjjjgc
+				
+                    data[i] = new Array(No_Of_BytesPerCard);
+                    //fs.Read(data[i], 0, 64);
+					for(j=0;j<No_Of_BytesPerCard;j++)
+					data[i][j]=buft[xx++];
+                    //fs.Read(data[i], 0, No_Of_BytesPerCard);
+                }
+		
+		
+		//rendering starts here loom display logic for handlooms
+		canvas.width=No_of_LoomcontrollerCards * Size_of_LoomcontrollerCard;
+		canvas.height=No_of_Weavelines;
+		console.log(canvas.width);
+		console.log(canvas.height);
+		
+		// create a new batch of pixels with the same
+		// dimensions as the image:
+		var imageData = ctx.createImageData(canvas.width, canvas.height);
+		
+		var dig_data = new Array(No_of_LoomcontrollerCards * No_Of_BytesPerCard);
+		
+		for (lines = 0; lines < No_of_Weavelines; lines++)
+         {
+		 	var v=0;
+			for (i = 0; i < No_of_LoomcontrollerCards; i++)
+				for (j = 0; j < No_Of_BytesPerCard; j++)
+					dig_data[v++] = data[lines * No_of_LoomcontrollerCards + i][j];
+				
+			v = 0;
+			for (LCS = 0; LCS < No_of_LoomcontrollerCards; LCS++)
+			{
+				for (i = 0; i < 7; i++)
+				{
+					 mask = 0x01;
+					for (l = 0; l < 8; l++)
+					{
+						for (k = 0; k < No_Of_CardsPerLeg; k++)
+						{
+							
+							if ((dig_data[LCS * No_Of_BytesPerCard + i * No_Of_CardsPerLeg + k] & (1 << l)) != 0)
+							{
+								setPixel(imageData, v, lines, 255, 255, 255, 255); // 255 opaque
+							}
+							else
+							{
+								setPixel(imageData, v, lines, 0, 0, 0, 255)
+							}
+							v++;
+							// b.SetPixel(v++, lines, Color.White);
+
+						}
+					}
+				}
+
+            }
+       }
+		//for(i=18;i<av.length;i++)
+		//console.log(av[i]);
+		
+		// copy the image data back onto the canvas
+		ctx.putImageData(imageData, 0, 0);	
+      }
+     // r.readAsText(f);
+	 r.readAsArrayBuffer(f);
+    //r.readAsBinaryString(f);
+	} else { 
+      alert("Failed to load file");  
+    }
+	
+  }
+  
+  function setPixel(imageData, x, y, r, g, b, a) {
+			index = (x + y * imageData.width) * 4;
+			imageData.data[index+0] = r;
+			imageData.data[index+1] = g;
+			imageData.data[index+2] = b;
+			imageData.data[index+3] = a;
+		}
+ 
+  
+  
+	</script>
+</body>
+</html>

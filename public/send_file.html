@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <title> Upload Example</title>
+	</head>
+    <body>
+
+        <form id="uploadForm"
+            action="/api/photos"
+            enctype="multipart/form-data"
+              method="post">
+              <input type="file" id="userPhoto" name="userPhoto" />
+        </form>
+        
+        <a href="monitor.html"><button>Monitor</button></a>
+
+    <!--     <span id="status" /> -->
+            <img id="uploadImage" />
+
+            <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+             <script src="/javascripts/jquery.form.js"></script>
+             <script src="/javascripts/upload.js"></script>
+
+    </body>
+</html>

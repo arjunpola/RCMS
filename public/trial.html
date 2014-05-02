@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title> Upload Example</title>
+	</head>
+	<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+	<script>
+	var socket = io.connect('http://localhost:3000');
+/*	
+	socket.on('news',function(data){
+	console.log(data);
+	socket.emit('otherEvent',{sample:'event'});
+	//socket.emit('Machine',{name:'Blah'});
+	});
+*/	
+
+	var send_machine1 = function(){
+	socket.emit('otherEvent',{machine:"Blah"});
+	}
+	
+	var monitor = function()
+	{
+		socket.emit("Monitor",{Status:"Start Monitoring"});
+	}
+	
+	</script>
+    <body>
+
+			<a onclick="send_machine1()"><button>Machine 1</button></a>
+			<a href="#"><button>Machine 1</button></a>
+			<a href="#"><button>Machine 1</button></a>
+			<a onclick="monitor()"><button>Monitor</button></a>
+            <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+    </body>
+</html>
