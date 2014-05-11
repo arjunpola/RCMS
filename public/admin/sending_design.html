@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>EJCS - Web Server</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Add custom CSS here -->
+    <link href="css/sb-admin.css" rel="stylesheet">
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    
+    <script src="js/jquery.js"></script>
+	<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+<script>
+
+var complete = function()
+{
+window.location="http://localhost:3000/admin/";
+}
+
+$(document).ready(function(){
+
+var socket = io.connect('http://localhost:3000');
+
+$("#status_label").html("Sending Files Successful");
+$("#machine_lable").html("");
+$("#cancel_done").html("Done");
+$("#cancel_done").click(function(){
+	window.location = "http://localhost:3000/admin/";
+});
+$("#progress").css("width","100%");
+	
+	socket.on("ClientTrigger",function(data){
+	console.log(data);
+	socket.emit("ClientTrigger",{Data:"TRIGGER"});
+	console.log("Triggered Next File Transfer");
+});
+
+socket.on('news',function(data)
+	{
+		console.log(data);
+	});
+	
+	socket.on('FTP_Error',function(data)
+	{
+		$("#status_label").html("There is an error in FTP Configuration for Machine");
+		$("#machine_lable").html(data.name);
+		
+		var r = confirm("Continue transfer to remaining machines?");
+		if (r == true){
+			socket.emit("ClientTrigger",{Data:"TRIGGER"});
+			console.log("Triggered Next File Transfer");
+		}
+	    else
+		    window.location="http://localhost:3000/admin/";
+	});
+
+socket.on("TransRes",function(data){
+
+/*
+	if(data.Data == "DONE"){
+		$("#cancel").html("<button id='statusBtn' onclick='complete()'>DONE</button>");
+		$("#loaderSub").html("<pre>Transfer Complete</pre>");
+	}
+	else
+		$("#loaderSub").html("<pre>"+data.Data+"</pre>");
+*/
+
+	if(data.done == 1)
+	{
+		$("#status_label").html("Files sent to all Machines. Click Done to Return.");
+		$("#machine_lable").html("");
+		$("#cancel_done").html("Done");
+		$("#cancel_done").onclick = complete();
+		$("#progress").attr("style","width=100%");
+	}
+	else if(data.success == 1)
+	{
+		$("#status_label").html("Design Successfully Sent to Machine");
+		$("#machine_lable").html(data.name);
+	}
+	
+	console.log(data);
+});
+
+var cancelSend = function()
+{
+socket.emit("CancelTrans",{"Data":"cancel"});
+window.location="http://localhost:3000/admin/";
+console.log("Cancelling..");
+}
+	
+	
+});
+
+
+
+</script>
+
+
+  </head>
+
+  <body>
+
+    <div id="wrapper">
+
+      <!-- Sidebar -->
+      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand">Admin</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav side-nav">
+			  <li><a href="http://localhost:3000/admin/">Home</a></li>
+            <li><a href="http://localhost:3000/admin/mpanel">Machines</a></li>
+            <li><a href="http://localhost:3000/admin/stats">Statistics</a></li>
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right navbar-user">
+                      
+            <li class="dropdown user-dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ADMIN_NAME_HERE <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#"><i class="fa fa-user"></i> Profile</a></li>
+                <li class="divider"></li>
+                <li><a href="http://localhost:3000/logout"><i class="fa fa-power-off"></i> Log Out</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </nav>
+
+      <div id="page-wrapper">
+
+        <div class="row">
+          <div class="col-lg-12">
+            <h1>Sending Design Files</h1>
+          </div>
+        </div><!-- /.row -->
+        
+        <br><br>
+        
+        <!-- Animated Bar -->
+        <div class="row">
+          
+          <br><br>
+          
+          <div class="bs-example">
+              <div class="progress progress-striped active">
+                <div class="progress-bar"  id="progress"></div>
+              </div>
+            </div>
+
+        </div><!-- /.row -->
+        
+        <div class="row">
+        	<div class="col-md-4">
+	        	<div class="form-group">
+					<label id="status_label"> </label>
+				</div>
+        	</div>
+        	<div class="col-md-4">
+        	<div class="form-group">
+        		<label id="machine_lable"> </label>
+        	</div>
+        	</div>
+        </div>
+        
+        <br><br>
+        <!--Cancel / Done -->
+        <div class="row">
+        	<div class="col-md-5">
+	        	<div class="form-group" id="done_cancel">
+					<button id="cancel_done" class="btn btn-primary btn-lg col-md-5"> Cancel </button>
+				</div>
+			</div>
+        </div>
+
+      </div><!-- /#page-wrapper -->
+
+    </div><!-- /#wrapper -->
+    
+    </
+
+    <!-- JavaScript -->
+    <script src="js/bootstrap.js"></script>
+
+  </body>
+</html>

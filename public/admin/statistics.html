@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>EJCS - Web Server</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Add custom CSS here -->
+    <link href="css/sb-admin.css" rel="stylesheet">
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/rwd-table.min.css">
+    
+    <script src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/rwd-table.min.js"></script>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+    
+<script>
+   $(function() {
+      $('.table-complex').responsiveTable({
+        adddisplayallbtn: true,
+/*         addfocusbtn: true, */
+        fixednavbar: '#navbar'//In case you have a fixed navbar.
+      })
+   });
+   
+  var socket = io.connect('http://localhost:3000');
+  
+   socket.on('connect', function () 
+		 {
+		 });
+		 
+		 socket.on('disconnect',function(){ 
+		 });
+   
+   socket.emit('ReqStats',{data:"Get Stats"});
+   socket.emit("getMonthlyStats",{data:"Get Month Stats"});
+   
+   socket.on("monthly_stats",function(data)
+   {
+	  
+	  /* console.log("Montly Stats: "+data); */
+	  moperations = JSON.parse(data);
+	  /* console.log(moperations); */
+	   
+	   
+for(j=0;j<moperations.length;j++)
+	   {
+		   opt = moperations[j].operations;
+		   day = moperations[j].date;
+		   len = opt.length;
+		   		   
+		   		  
+		   for(v=0;v<len;v++)
+		   {
+			   i = opt[v];
+			   console.log(i);
+	   		 msg = "";
+	   		
+switch(i.cmd)
+	   		{
+		   		case "START-C": msg="Started Controller";
+		   						arg="--";
+		   		break;
+		   		case "STOP-C": msg="Controller Stopped";
+		   						arg="--";
+		   		break;
+		   		case "LAST-W": msg="Last Weaved File";
+		   						continue;
+		   		break;
+		   		case "SENSOR": msg="";
+		   						continue;
+		   						break;
+		   						
+		   		case "START-W": msg="Weaving Started";
+		   						arg="672.lmk";
+		   						 break;
+		   						 
+		   		case "STOP-W": msg="Weaving Stopped";
+		   						arg="672.lmk";
+		   		break;
+		   		
+		   		case "CURRENT-D": msg="";
+		   							continue;
+		   							break;
+		   							
+		   		case "WEAVE-D": msg="Weaving Completed.";
+		   						arg="672.lmk";
+		   						break;
+		   		case "VERSION": continue;
+		   						break;
+		   	}
+
+	   		
+	   		$("#stats-monthly-table").append("<tr><td>"+i.name+"</td><td>"+msg+"</td><td>"+day+"</td><td>"+i.timeStamp+"</td><td>"+arg+"</td></tr>");
+		   }
+
+	 }
+	   
+   });
+   
+   socket.on('stats',function(data)
+   {
+	   operations = JSON.parse(data)[0].operations;
+	   for(v=0;v<operations.length;v++)
+	   {
+	   		i = operations[v];
+		   /* console.log(i); */
+	   		 msg = "";
+	   		switch(i.cmd)
+	   		{
+		   		case "START-C": msg="Started Controller";
+		   						arg="--";
+		   		break;
+		   		case "STOP-C": msg="Controller Stopped";
+		   						arg="--";
+		   		break;
+		   		case "LAST-W": msg="Last Weaved File";
+		   						continue;
+		   		break;
+		   		case "SENSOR": msg="";
+		   						continue;
+		   						break;
+		   						
+		   		case "START-W": msg="Weaving Started";
+		   						arg="672.lmk";
+		   						 break;
+		   						 
+		   		case "STOP-W": msg="Weaving Stopped";
+		   						arg="672.lmk";
+		   		break;
+		   		
+		   		case "CURRENT-D": msg="";
+		   							continue;
+		   							break;
+		   							
+		   		case "WEAVE-D": msg="Weaving Completed.";
+		   						arg="672.lmk";
+		   						break;
+		   	}
+	   		$("#stats-daily-table").append("<tr><td>"+i.name+"</td><td>"+msg+"</td><td>"+i.timeStamp+"</td><td>"+arg+"</td></tr>");
+	   }
+	 
+	   });
+   
+</script>
+  </head>
+
+  <body>
+
+    <div id="wrapper">
+
+      <!-- Sidebar -->
+      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand">Admin</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav side-nav">
+			  <li><a href="http://localhost:3000/admin/">Home</a></li>
+            <li><a href="http://localhost:3000/admin/mpanel">Machines</a></li>
+            <li><a href="http://localhost:3000/admin/stats">Statistics</a></li>
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right navbar-user">
+                      
+            <li class="dropdown user-dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ADMIN_NAME_HERE <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#"><i class="fa fa-user"></i> Profile</a></li>
+                <li class="divider"></li>
+                <li><a href="http://localhost:3000/logout"><i class="fa fa-power-off"></i> Log Out</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </nav>
+
+      <div id="page-wrapper">
+
+        <div class="row">
+          <div class="col-lg-12">
+            <h1>Statistics<small></small></h1>
+          </div>
+        </div><!-- /.row -->
+        
+        <br><br>
+        
+        <!-- Start Tab Row -->
+        <div class="row">
+          <div class="col-lg-12">
+            <h2 id="nav-tabs">Tabs</h2>
+            	<div class="bs-example">
+					
+					<ul class="nav nav-tabs" style="margin-bottom: 15px;">
+						<li class="active"><a href="#dailyStats" data-toggle="tab">Daily</a></li>
+						<li><a href="#monthlyStats" data-toggle="tab">Monthly</a></li>
+					</ul>	
+							
+					<div id="myTabContent" class="tab-content">
+						
+						<div class="tab-pane fade active in" id="dailyStats">
+							<div class="table-responsive">
+					   <table id="stats-daily-table" class="table table-complex table-bordered table-striped">
+						   <tr><th>Machine</th><th>Command</th><th>Timestamp</th><th>Argument</th></tr>
+					   </table>
+					</div>
+						</div>
+               
+						<div class="tab-pane fade" id="monthlyStats">                
+									<div class="table-responsive">
+						  <table id="stats-monthly-table" class="table table-complex table-bordered table-striped">
+							  <tr><th>Machine</th><th>Command</th><th>Day</th><th>Timestamp</th><th>Argument</th></tr>
+						  </table>
+					  </div>                
+						</div>
+					</div>
+				</div>
+			</div>
+         </div>
+
+
+		  
+      </div><!-- /#page-wrapper -->
+
+    </div><!-- /#wrapper -->
+
+    <!-- JavaScript -->
+    <script src="js/bootstrap.js"></script>
+
+  </body>
+</html>

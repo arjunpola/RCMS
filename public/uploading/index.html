@@ -9,10 +9,10 @@
 
 </style>
 <script src="js/jquery.js"></script>
-<script src="http://10.0.0.3:3000/socket.io/socket.io.js"></script>
+<script src="http://10.0.0.13:3000/socket.io/socket.io.js"></script>
 <script>
 
-var socket = io.connect('http://10.0.0.3:3000');
+var socket = io.connect('http://10.0.0.13:3000');
 
 $("#loaderSub").html("<pre>Connecting to Server...</pre>");
 
@@ -36,7 +36,7 @@ socket.on('news',function(data)
 			console.log("Triggered Next File Transfer");
 		}
 	    else
-		    window.location="../home/";
+		    window.location="http://localhost:3000/admin/";
 	});
 
 socket.on("TransRes",function(data){
@@ -53,14 +53,14 @@ socket.on("TransRes",function(data){
 function cancelTrans()
 {
 socket.emit("CancelTrans",{"Data":"cancel"});
-window.location="../home/";
+window.location="http://localhost:3000/admin/";
 console.log("Cancelling..");
 }
 
 function complete()
 {
 /* console.log("Cancelling.."); */
-window.location="http://10.0.0.3:3000/home/";
+window.location="http://localhost:3000/admin/";
 }
 
 </script>

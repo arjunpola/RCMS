@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>EJCS - Web Server</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Add custom CSS here -->
+    <link href="css/sb-admin.css" rel="stylesheet">
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    <script type="text/javascript">
+	    function validate()
+		{
+			if(document.forms["myform"]["machine_name"].value=="" || document.forms["myform"]["ip_addr"].value=="" || document.forms["myform"]["loom_type"].value=="")
+			{
+				alert("Fields Cannot be Empty");
+			}
+			ValidateIPaddress(document.body.ip_addr);
+		}
+		function ValidateIPaddress(inputText)  
+		 {  
+				 var ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;  
+				 if(inputText.value.match(ipformat))  
+				 {  
+					return true;  
+				 }  
+				 else  
+				 {  
+					 alert("You have entered an invalid IP address!");  
+					 document.body.ip_addr.focus();
+					 return false;  
+				 }  
+		 }  
+    </script>
+  </head>
+
+  <body>
+
+    <div id="wrapper">
+
+      <!-- Sidebar -->
+      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand">Admin</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav side-nav">
+			  <li><a href="http://localhost:3000/admin/">Home</a></li>
+            <li><a href="http://localhost:3000/admin/mpanel">Machines</a></li>
+            <li><a href="http://localhost:3000/admin/stats">Statistics</a></li>
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right navbar-user">
+                      
+            <li class="dropdown user-dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ADMIN_NAME_HERE <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#"><i class="fa fa-user"></i> Profile</a></li>
+                <li class="divider"></li>
+                <li><a href="http://localhost:3000/logout"><i class="fa fa-power-off"></i> Log Out</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </nav>
+
+      <div id="page-wrapper">
+
+        <div class="row">
+          <div class="col-lg-12">
+            <h1>Add Machine Panel<small></small></h1>
+          </div>
+        </div><!-- /.row -->
+        
+        <br><br>
+        
+        <div class="row">
+          <div class="col-lg-6">
+
+            <form name="myform" method="post" action="add/" role="form">
+
+              <div class="form-group">
+                <label for="machine_name">Machine Name</label>
+                <input class="form-control" id="machine_name" name="machine_name" placeholder="MCB10">
+              </div>
+              
+              <div class="form-group">
+                <label for="ip_addr">IP Address</label>
+                <input class="form-control" id="ip_addr" name="ip_addr" placeholder="192.168.1.10">
+              </div>
+              
+               <div class="form-group">
+                <label for="loom_type">Loom Type</label>
+                <input class="form-control" id="loom_type" name="loom_type" placeholder="Type 3">
+              </div>
+              
+              <br>
+
+              <button type="submit" class="btn btn-default col-md-3 col-md-offset-1">&nbsp; Add &nbsp;</button>
+              <button type="reset" class="btn btn-default col-md-3 col-md-offset-1">Reset</button>  
+
+            </form>
+
+          </div>
+<!--
+          <div class="col-lg-6">
+            <h1>Disabled Form States</h1>
+
+            <form role="form">
+
+              <fieldset disabled>
+
+                <div class="form-group">
+                  <label for="disabledSelect">Disabled input</label>
+                <input class="form-control" id="disabledInput" type="text" placeholder="Disabled input" disabled>
+                </div>
+
+                <div class="form-group">
+                  <label for="disabledSelect">Disabled select menu</label>
+                  <select id="disabledSelect" class="form-control">
+                    <option>Disabled select</option>
+                  </select>
+                </div>
+
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox"> Disabled Checkbox
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Disabled Button</button>
+
+              </fieldset>
+
+            </form>
+
+            <h1>Form Validation</h1>
+
+            <form role="form">
+
+              <div class="form-group has-success">
+                <label class="control-label" for="inputSuccess">Input with success</label>
+                <input type="text" class="form-control" id="inputSuccess">
+              </div>
+
+              <div class="form-group has-warning">
+                <label class="control-label" for="inputWarning">Input with warning</label>
+                <input type="text" class="form-control" id="inputWarning">
+              </div>
+
+              <div class="form-group has-error">
+                <label class="control-label" for="inputError">Input with error</label>
+                <input type="text" class="form-control" id="inputError">
+              </div>
+            
+            </form>
+            
+            <h1>Input Groups</h1>
+
+            <form role="form">
+
+              <div class="form-group input-group">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" placeholder="Username">
+              </div>
+
+              <div class="form-group input-group">
+                <input type="text" class="form-control">
+                <span class="input-group-addon">.00</span>
+              </div>
+
+              <div class="form-group input-group">
+                <span class="input-group-addon"><i class="fa fa-eur"></i></span>
+                <input type="text" class="form-control" placeholder="Font Awesome Icon">
+              </div>
+
+              <div class="form-group input-group">
+                <span class="input-group-addon">$</span>
+                <input type="text" class="form-control">
+                <span class="input-group-addon">.00</span>
+              </div>
+              
+              <div class="form-group input-group">
+                <input type="text" class="form-control">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+                </span>
+              </div>
+
+            </form>
+            
+            <p>For complete documentation, please visit <a href="http://getbootstrap.com/css/#forms">Bootstrap's Form Documentation</a>.</p>
+
+          </div>
+-->
+        </div><!-- /.row -->
+
+      </div><!-- /#page-wrapper -->
+
+    </div><!-- /#wrapper -->
+
+    <!-- JavaScript -->
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="js/bootstrap.js"></script>
+
+  </body>
+</html>

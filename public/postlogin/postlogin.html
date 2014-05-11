@@ -12,7 +12,7 @@
 		}
 		function monitorClick()
 		{
-			window.location='http://localhost:3000/monitor/';
+			window.location='http://localhost:3000/MonitorTrial/';
 		}
 		function logout()
 		{
@@ -20,11 +20,15 @@
 		}
 		function addClick()
 		{
-			window.location='http://localhost:3000/addmachines/';
+			window.location='http://localhost:3000/addMachines/';
 		}
 			function cPanel()
 		{
 			window.location='http://localhost:3000/cPanel/';
+		}
+				function deleteClick()
+		{
+			window.location='http://localhost:3000/deleteMachines/';
 		}
 		</script>
 	</head>
@@ -40,12 +44,14 @@
 			<div class="main">
 				<!--<form class="cbp-mc-form" method="post" action="register.php">-->
 					<div class="cbp-mc-form">
-	  				<div class="cbp-mc-submit-wrap">
-					<input name="transfer" type="button" class="cbp-mc-submit" id="transfer" onClick="transferClick()" value="TRANSFER FILES" >
-					<input class="cbp-mc-submit" type="button" name="addmachines" id="addmachines" value="Add Machines" onClick="addClick()" />
-					<input class="cbp-mc-submit" type="button" name="cPanel" id="cPanel" value="Control Panel" onClick="cPanel()" />
-					<input class="cbp-mc-submit" type="button" name="monitor" id="monitor" value="Monitor Machines" onClick="monitorClick()" />
-					</div>
+<input class="cbp-mc-submit" type="button" name="addmachines" id="addmachines" value="Add Machines" onClick="addClick()" />
+
+<input class="cbp-mc-submit" type="button" name="deletemachines" id="deletemachines" value="Delete Machines" onClick="deleteClick()" />
+
+<input class="cbp-mc-submit" name="transfer" type="button" id="transfer" onClick="transferClick()" value="TRANSFER FILES" >
+				
+<!-- 					<input class="cbp-mc-submit" type="button" name="cPanel" id="cPanel" value="Control Panel" onClick="cPanel()" /> -->
+<input class="cbp-mc-submit" type="button" name="monitor" id="monitor" value="Monitor Machines" onClick="monitorClick()" />
 					</div>
 				<!--</form>-->
 			</div>

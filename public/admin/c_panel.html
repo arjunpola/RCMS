@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>EJCS Web Server</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Add custom CSS here -->
+    <link href="css/sb-admin.css" rel="stylesheet">
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.bsAlerts.js"></script>
+    <script src="js/prettify.js"></script>
+   <script type="text/javascript">
+    	function postData(data)
+    	{
+    		
+    		$("button").attr("disabled", "disabled");
+    	
+	    	$.post("http://localhost:3000/machine_command",{MCMD:data},function(ack,status,xhr){
+		    	console.log(ack);
+		    	
+		    	setTimeout(function(){
+		    			$("button").removeAttr("disabled");
+		    		}, 4000);
+		    		
+		    	msg = "";
+		    	if(ack['ack']=="SUCCESS"){
+		    	
+		    	switch(ack.cmd)
+		    	{
+			    	case "START-C": msg = "Controller Started"; break;
+			    	case "STOP-C": msg = "Controller Stopped"; break;
+			    	case "START-W": msg = "Started Weaving"; break;
+			    	case "STOP-W": msg = "Weaving Stopped"; break;
+			    	case "SENSOR": msg = "Sensor Value is: 18"; break;
+			    	case "CURRENT-D": msg = "Current Design File is 672.lmk!"; break;
+			    	case "LAST-W": msg = "Last Weaved Design for is 672.lmk!"; break;
+			    	
+		    	}
+		    		
+		    		showSuccessAlert(msg);
+		    		
+		    		/*
+setTimeout(function(){
+		    			$("button").removeAttr("disabled");
+		    		}, 4000)
+*/;
+		    	}
+		    	else{
+		    	
+		    	switch(ack.cmd)
+		    	{
+			    	case "START-C": msg = "Failed to Start Controller!"; break;
+			    	case "STOP-C":  msg = "Stopping Controller Failed!"; break;
+			    	case "START-W": msg = "Failed to Start Weaving!"; break;
+			    	case "STOP-W":  msg = "Cannot Stop Weaving!"; break;
+			    	case "SENSOR":  msg = "Unable to Retrieve Sensor Status"; break;
+			    	case "CURRENT-D": msg = "Current Design cannot be obtained!"; break;
+			    	case "LAST-W":  msg = "Last Weaved file is not available!"; break;
+			    	
+		    	}
+		    		$("button").attr("disabled", "disabled");
+		    		
+		    		showFailAlert(msg);
+		    		
+		    		/*
+setTimeout(function(){
+		    			$("button").removeAttr("disabled");
+		    		}, 4000);
+*/
+		    	}
+		    		
+	    	});
+	    	
+    	}	
+
+		 function showSuccessAlert(alert_msg) {
+		 	
+		 	console.log("Displaying Alert");
+		 
+			$(document).trigger("add-alerts",[
+			{
+				'message': alert_msg,
+				'priority': 'success'
+				}
+				]);
+			}
+			
+			function showFailAlert(alert_msg) {
+		 	
+		 	console.log("Displaying Alert");
+		 
+			$(document).trigger("add-alerts",[
+			{
+				'message': alert_msg,
+				'priority': 'error'
+				}
+				]);
+			}
+</script>
+
+  </head>
+
+  <body>
+
+    <div id="wrapper">
+
+      <!-- Sidebar -->
+      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand">Admin</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav side-nav">
+            <li><a href="http://localhost:3000/admin/">Home</a></li>
+            <li><a href="http://localhost:3000/admin/mpanel">Machines</a></li>
+            <li><a href="http://localhost:3000/admin/stats">Statistics</a></li>
+            
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right navbar-user">
+            
+            <li class="dropdown user-dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ADMIN_NAME_HERE <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#"><i class="fa fa-user"></i> Profile</a></li>
+                <li class="divider"></li>
+                <li><a href="http://localhost:3000/logout"><i class="fa fa-power-off"></i> Log Out</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </nav>
+
+      <div id="page-wrapper">
+      
+      
+        <div class="row">
+          <div class="col-lg-12">
+            <h1>EJCS Web Server <small id="mInfo"></small></h1>
+          </div>
+        </div><!-- /.row -->
+
+<br><br><br>
+
+        <div class="row" style="margin-right:80px;">
+              
+    <button type="button" class="btn btn-primary btn-lg col-md-4 col-md-offset-2" onclick="postData('START-C')">Start Controller</button>
+    
+     <button type="button" class="btn btn-primary btn-lg col-md-4 col-md-offset-2" onclick="postData('STOP-C')">Stop Controller</button>
+    
+    <br><br><br><br>
+    
+    <button type="button" class="btn btn-primary btn-lg col-md-4 col-md-offset-2" onclick="postData('START-W')">Start Weaving</button>
+    
+        <button type="button" class="btn btn-primary btn-lg col-md-4 col-md-offset-2" onclick="postData('STOP-W')">Stop Weaving</button>
+        
+            <br><br><br><br>
+    
+     <button type="button" class="btn btn-primary btn-lg col-md-4 col-md-offset-2" onclick="postData('SENSOR')">Sensor Status</button>
+   
+    
+    <button type="button" class="btn btn-primary btn-lg col-md-4 col-md-offset-2" onclick="postData('VERSION')">Controller Ver</button>
+    
+    <br><br><br><br>
+    
+    <button type="button" class="btn btn-primary btn-lg col-md-4 col-md-offset-2" onclick="postData('CURRENT-D')">Current Design</button>
+    
+    <button type="button" class="btn btn-primary btn-lg col-md-4 col-md-offset-2" onclick="postData('LAST-W')">Last Weaved</button>
+		  </div><!-- /.row -->
+		  
+		  <br><br>
+		  
+		  <div data-alerts="alerts" data-titles="{'warning': '<em>Warning!</em>'}" data-ids="myid" data-fade="4000"></div>
+
+      </div><!-- /#page-wrapper -->
+
+    </div><!-- /#wrapper -->
+
+    <!-- JavaScript -->
+<!--     <script src="js/jquery-1.10.2.js"></script> -->
+    <script src="js/bootstrap.js"></script>
+
+  </body>
+  <script>
+$("#start_w").click(function() {
+  $(document).trigger("add-alerts", [
+    {
+      'message': "This is a warning.",
+      'priority': 'warning'
+    }
+  ]);
+});
+  </script>
+</html

@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <title>Image</title>
 
-<script src="http://127.0.0.1:3031/socket.io/socket.io.js"></script>
+<script src="http://localhost:3031/socket.io/socket.io.js"></script>
 
 <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
@@ -28,7 +28,7 @@ for(var key in ipAddr)
 	 function overlay()
 	 {
 		 var scon = false;
-		 var socket = io.connect('http://127.0.0.1:3031');
+		 var socket = io.connect('http://localhost:3031');
 	
 		 socket.on('connect', function () 
 		 {
@@ -47,6 +47,12 @@ for(var key in ipAddr)
 			 d = data.Data.toString().split(":");
 			 colorLines(curLine[d[0]],d[1],ipAddr[d[0]]);
 			 curLine[d[0]] = d[1];
+		 });
+		 
+		 socket.on('FIN',function(data)
+		 {
+			 console.log(data.Data);
+			 colorLines(curLine[d[0]],"FIN",ipAddr[d[0]]);
 		 });
 		 		/* v+=2; */
 				for(i=0;i<=v;i++)
@@ -71,13 +77,22 @@ for(var key in ipAddr)
 	
 	function colorLines(curLine,newLine,i)
 		{
+		
+		var canvas = document.getElementById("mcanvas"+i);
+		
+			if(newLine == "FIN")
+				newLine = canvas.height;
+				
 			curLine = parseInt(curLine);
 			newLine = parseInt(newLine);
 			
-			var canvas = document.getElementById("mcanvas"+i);
+			
 			ctx = canvas.getContext("2d");
 			var imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
 			var px = imageData.data;
+			
+			if(newLine == "FIN")
+				newLine = canvas.height;
 			
 			if(newLine > canvas.height)
 				newLine = canvas.height;

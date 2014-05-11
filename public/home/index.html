@@ -15,10 +15,10 @@ max-width: 500px;
 }
 </style>
 <script src="js/jquery.js"></script>
-<script src="http://10.0.0.3:3000/socket.io/socket.io.js"></script>
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
 <script>
 var Mdata;
-var socket = io.connect('http://10.0.0.3:3000');
+var socket = io.connect('http://localhost:3000');
 
 socket.emit("ReqOrg",{"data":"trigger"});
 
@@ -58,7 +58,7 @@ socket.emit("CancelTrans",{"Data":"cancel"});
 			<header class="clearfix">
 				<h1>Submit Design Files</h1>
 				<nav>
-					<a href="../postlogin/postlogin.html" class="bp-icon bp-icon-prev" data-info="Go Back"><span>Back</span></a>
+					<a href="http://localhost:3000/postlogin/" class="bp-icon bp-icon-prev" data-info="Go Back"><span>Back</span></a>
 				</nav>
 			</header>
 	

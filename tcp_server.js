@@ -22,24 +22,49 @@ con.connect(function(err){
 
 var HOST = '0.0.0.0';
 var PORT = 3030;
+var trialIP = "192.168.1.10";
+var login = true;
+var ORG;
 
 var socketServer = io.listen(3031);
 
 var tcp_server = net.createServer(function(tcpSocket)
 		{
 			
-			console.log('Connected: ' + tcpSocket.remoteAddress + ':'+ tcpSocket.remotePort);
+			console.log('Connected: ' + trialIP + ':'+ tcpSocket.remotePort);
 			
 			tcpSocket.on('data',function(data)
 				{
-					console.log('DATA '+ tcpSocket.remoteAddress +': ' + data);
+				
+				logInfo = data.toString().split(":");
+				
+				if(logInfo[0] == "SSO"){
+					login = true;
+					console.log('DATA : ' + data);
+					return;
+					}
+				else if(logInfo[0] == "SLO"){
+					login = false;
+					console.log('DATA: '+ data);
+					return;
+					}
+				else if(logInfo[0] == "LINF")
+				{
+					ORG = logInfo[1];
+					console.log('DATA : ' + data);
+					return;
+				}
+				
+				if(login == true){
+				
+					console.log('DATA '+ trialIP +': ' + data);
 					data = data.toString().split(":");
 					
 					switch(data[0])
 					{
 						case "FILE":
-						console.log("Machine at "+tcpSocket.remoteAddress+" is printing "+data[1]+". \n");
-						query = "update sailoomtech set curFile='"+data[1]+"' where mhost='"+tcpSocket.remoteAddress+"';";
+						console.log("Machine at "+trialIP+" is printing "+data[1]+". \n");
+				query = "update SaiLoomTech set curFile='"+data[1]+"' where mhost='"+trialIP+"';";
 						con.query(query,function(err,rows,field)
 						{
 						if(err){
@@ -54,14 +79,16 @@ var tcp_server = net.createServer(function(tcpSocket)
 						break;
 						
 						case "UPDATE":
-						console.log("Machine at "+tcpSocket.remoteAddress+" updated print to line"+data[1]+". \n");
-						socketServer.sockets.emit("UpdatePrint",{Data:tcpSocket.remoteAddress+":"+data[1]});
+						console.log("Machine at "+trialIP+" updated print to line"+data[1]+". \n");
+						socketServer.sockets.emit("UpdatePrint",{Data:trialIP+":"+data[1]});
 						break;
 						
 						case "DONE":
-						console.log("Machine at "+tcpSocket.remoteAddress+" finished printing file. \n")
+						console.log("Machine at "+trialIP+" finished printing file. \n");
+						socketServer.sockets.emit("FIN",{Data:trialIP+":FIN"});
 						break;
 					}
+				}
 					
 				});
 				
@@ -84,9 +111,6 @@ console.log('Server listening on ' +HOST+ ':' +PORT);
 
 //Code for Socket Communication
 socketServer.sockets.on('connection',function(socket){
-
-
-/* socket.emit("UpdatePrint",{Data:"Print Update Status"}); */
 
 socket.emit('news',{hello:'world'});
 
