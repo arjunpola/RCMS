@@ -29,6 +29,7 @@ $(document).ready(function(){
 
 var socket = io.connect('http://localhost:3000');
 
+/*
 $("#status_label").html("Sending Files Successful");
 $("#machine_lable").html("");
 $("#cancel_done").html("Done");
@@ -36,20 +37,21 @@ $("#cancel_done").click(function(){
 	window.location = "http://localhost:3000/admin/";
 });
 $("#progress").css("width","100%");
+*/
+
+socket.emit("ClientTrigger",{Data:"TRIGGER"});
 	
 	socket.on("ClientTrigger",function(data){
 	console.log(data);
 	socket.emit("ClientTrigger",{Data:"TRIGGER"});
 	console.log("Triggered Next File Transfer");
+	console.log("Progress: "+data.progress);
+	$("#progress").css("width",data.progress);
 });
-
-socket.on('news',function(data)
-	{
-		console.log(data);
-	});
 	
 	socket.on('FTP_Error',function(data)
 	{
+		console.log("FTP Error:"+data);
 		$("#status_label").html("There is an error in FTP Configuration for Machine");
 		$("#machine_lable").html(data.name);
 		
@@ -63,31 +65,46 @@ socket.on('news',function(data)
 	});
 
 socket.on("TransRes",function(data){
-
-/*
-	if(data.Data == "DONE"){
-		$("#cancel").html("<button id='statusBtn' onclick='complete()'>DONE</button>");
-		$("#loaderSub").html("<pre>Transfer Complete</pre>");
-	}
-	else
-		$("#loaderSub").html("<pre>"+data.Data+"</pre>");
-*/
+	
+	console.log("FTP DONE:"+data);
 
 	if(data.done == 1)
 	{
 		$("#status_label").html("Files sent to all Machines. Click Done to Return.");
 		$("#machine_lable").html("");
 		$("#cancel_done").html("Done");
-		$("#cancel_done").onclick = complete();
-		$("#progress").attr("style","width=100%");
+		$("#cancel_done").click(function(){
+	window.location = "http://localhost:3000/admin/";
+});
+
+
+		/*
+$("#progress").attr("style","width=100%");
+*/
 	}
 	else if(data.success == 1)
 	{
 		$("#status_label").html("Design Successfully Sent to Machine");
 		$("#machine_lable").html(data.name);
 	}
+	else if(data.done==0)
+	{
+		$("#status_label").html("File sending failed to one or more machines. Click Done to Return.");
+		$("#machine_lable").html("");
+		$("#cancel_done").html("Done");
+		$("#cancel_done").click(function(){
+			window.location = "http://localhost:3000/admin/";
+});
+
+/* 		$("#progress").attr("style","width=100%"); */
+	}
 	
 	console.log(data);
+});
+
+
+socket.on("sending",function(data){
+	console.log("Sending:"+data);
 });
 
 var cancelSend = function()
@@ -128,8 +145,9 @@ console.log("Cancelling..");
         <div class="collapse navbar-collapse navbar-ex1-collapse">
           <ul class="nav navbar-nav side-nav">
 			  <li><a href="http://localhost:3000/admin/">Home</a></li>
-            <li><a href="http://localhost:3000/admin/mpanel">Machines</a></li>
-            <li><a href="http://localhost:3000/admin/stats">Statistics</a></li>
+            <li><a href="http://localhost:3000/admin/mpanel">Monitor Machines</a></li>
+            <!-- <li><a href="http://localhost:3000/admin/stats">Statistics</a></li> -->
+            <li><a href="http://localhost:3000/admin/send_design">Transfer Design</a></li>
           </ul>
 
           <ul class="nav navbar-nav navbar-right navbar-user">

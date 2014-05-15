@@ -25,13 +25,18 @@ var PORT = 3030;
 var trialIP = "192.168.1.10";
 var login = true;
 var ORG;
+var	c = new Object();
 
 var socketServer = io.listen(3031);
 
 var tcp_server = net.createServer(function(tcpSocket)
 		{
 			
-			console.log('Connected: ' + trialIP + ':'+ tcpSocket.remotePort);
+			console.log('Connected: ' + tcpSocket.remoteAddress + ':'+ tcpSocket.remotePort);
+				
+				c[tcpSocket.remoteAddress]="G";
+				tcpSocket.address = tcpSocket.remoteAddress;
+				console.log(JSON.stringify(c));
 			
 			tcpSocket.on('data',function(data)
 				{
@@ -57,14 +62,15 @@ var tcp_server = net.createServer(function(tcpSocket)
 				
 				if(login == true){
 				
-					console.log('DATA '+ trialIP +': ' + data);
+					console.log('DATA '+  tcpSocket.remoteAddress +': ' + data);
 					data = data.toString().split(":");
 					
 					switch(data[0])
 					{
 						case "FILE":
-						console.log("Machine at "+trialIP+" is printing "+data[1]+". \n");
-				query = "update SaiLoomTech set curFile='"+data[1]+"' where mhost='"+trialIP+"';";
+					//	data[1]=data[1].split(".")[0]+".lmk";
+						console.log("Machine at "+ tcpSocket.remoteAddress+" is printing "+data[1]+". \n");
+				query = "update SaiLoomTech set curFile='"+data[1]+"' where mhost='"+ tcpSocket.remoteAddress+"';";
 						con.query(query,function(err,rows,field)
 						{
 						if(err){
@@ -79,13 +85,13 @@ var tcp_server = net.createServer(function(tcpSocket)
 						break;
 						
 						case "UPDATE":
-						console.log("Machine at "+trialIP+" updated print to line"+data[1]+". \n");
-						socketServer.sockets.emit("UpdatePrint",{Data:trialIP+":"+data[1]});
+						console.log("Machine at "+ tcpSocket.remoteAddress+" updated print to line"+data[1]+". \n");
+						socketServer.sockets.emit("UpdatePrint",{Data:tcpSocket.remoteAddress+":"+data[1]});
 						break;
 						
 						case "DONE":
-						console.log("Machine at "+trialIP+" finished printing file. \n");
-						socketServer.sockets.emit("FIN",{Data:trialIP+":FIN"});
+						console.log("Machine at "+ tcpSocket.remoteAddress+" finished printing file. \n");
+						socketServer.sockets.emit("FIN",{Data: tcpSocket.remoteAddress+":FIN"});
 						break;
 					}
 				}
@@ -93,15 +99,17 @@ var tcp_server = net.createServer(function(tcpSocket)
 				});
 				
 
-			tcpSocket.on('close',function(data){
-				console.log('Connection CLOSED ');
+			tcpSocket.on('end',function(data){
+			
+			console.log("Closed: "+JSON.stringify(data));
+			c[tcpSocket.address] = "";
+			console.log(JSON.stringify(c));
+			
 			});
+			
+			
 		}).listen(PORT,HOST);
 
-tcp_server.on('connection',function(sock)
-		{
-			console.log('Connected');
-		});
 
 tcp_server.on("error",function(err){
 	console.log("Error: "+err);
@@ -110,7 +118,18 @@ tcp_server.on("error",function(err){
 console.log('Server listening on ' +HOST+ ':' +PORT);
 
 //Code for Socket Communication
+
 socketServer.sockets.on('connection',function(socket){
+
+socket.on('getConnected',function(data){
+
+	console.log("getConnected:"+data);
+/*
+	c["10.0.0.3"] = "G";
+	c["10.0.0.51"] = "G";
+*/
+	socket.emit('getConnected',{data:JSON.stringify(c)});
+});
 
 socket.emit('news',{hello:'world'});
 

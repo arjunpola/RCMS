@@ -32,9 +32,9 @@ var cmd_client = net.Socket();
 var ftp_user = "admin";
 var ftp_pass = "";
 
-var monitorFile="",monitorFTP="",curHead=0,ORG="",trigger_count=0,machines="",fileName="";
+var monitorFile="",monitorFTP="",curHead=0,ORG="",trigger_count=0,machines="",fileName="",filePath="";
 var cancelTrans = false;
-var can = "",overlay="",
+var can = "",overlay="",done = 1;
 
 Repo = "/root/NodeApps/RCMS/public/repository/",
 PublicDir = "/root/NodeApps/RCMS/public/";
@@ -332,10 +332,30 @@ res.writeHead(200,{"Content-Type":"text/html"});
 		
 	fileName = req.files.userPhoto.name;
 	machines = req.session.machines = req.body.Machine;
-
+	filePath = req.files.userPhoto.path;
 	
-    req.session.globalPath = ORG.Machine[0].localDir + fileName;
-    
+    /* req.session.globalPath = ORG.Machine[req.session.machines[0]].localDir + fileName; */
+ console.log(req.files.userPhoto.path);
+
+require('fs').rename(
+        req.files.userPhoto.path,"/tmp/"+fileName,
+        function(error){
+            if(error){
+			  console.log("Error in File Rename: "+error);
+			  res.write("<script>alert('OOPS! Theres some problem. Please try again later.'); window.location='http://"+MyLocalIP+":3000/admin/send_design'</script>");
+			  res.end();
+			  return;	  	
+        }
+        else{
+	        res.write("<script>window.location='http://"+MyLocalIP+":3000/admin/sending_design'</script>");
+	        res.end();
+        }
+     });
+
+
+
+
+/*
     require('fs').rename(
         req.files.userPhoto.path,req.session.globalPath,
         function(error){
@@ -344,7 +364,6 @@ res.writeHead(200,{"Content-Type":"text/html"});
 			  res.write("<script>alert('OOPS! Theres some problem. Please try again later.'); window.location='http://"+MyLocalIP+":3000/admin/send_design'</script>");
 			  res.end();
 			  return;	  	
-/*               socketServer.socket.emit("TransRes",{Data:"OOPS! Theres some proble. Please Try Again!"}); */
         }
         
 			
@@ -356,13 +375,13 @@ console.log("Transferring File");
 	var transFtp = new JSFTP({
 		host:req.session.ORG.Machine[req.session.machines[0]].host,
     	port:21,
-    	user:"arjunpola",
-    	pass:"NACN"
+    	user:"admin",
+    	pass:""
 	});
 	
 	
 			
-			transFtp.put(req.session.globalPath,"/Users/arjunpola/Desktop/"+fileName,function(err){
+			transFtp.put(req.session.globalPath,"/"+fileName,function(err){
 			
 				if(err){
 					console.log("Sending Failed to Machine: "+req.session.ORG.Machine[req.session.machines[0]].name+"\n");
@@ -391,6 +410,7 @@ console.log("Transferring File");
 			   			
 			
         });
+*/
 
         /* }); *///End of LMK Rename;
 		}//End of Else
@@ -827,7 +847,7 @@ console.log(JSON.stringify(req.session));
 CurMachine = req.session.ORG.Machine[req.session.CurrentMachine.NUM];
 CMD_HOST = CurMachine.host;
 arg = "--";
-cmd_client.connect(CMD_PORT,"10.0.0.3",function(){
+cmd_client.connect(CMD_PORT,"192.168.0.51",function(){
 	console.log("Connected to CMD Server! \nSending Command to Machine:"+CurMachine.name);
 	cmd_client.write("CMD:"+req.session.CurrentMachine.CMD);
 	if(req.session.CurrentMachine.CMD == "START-W" || req.session.CurrentMachine.CMD == "STOP-W")
@@ -1489,7 +1509,7 @@ function sendToNextHost()
 if(trigger_count < machines.length && !cancelTrans)
 {
  
- socketServer.sockets.emit("Sending to Machine "+ORG.Machine[machines[trigger_count]].name)
+ socketServer.sockets.emit("sending","Sending to Machine "+ORG.Machine[machines[trigger_count]].name);
  
  console.log("Transferring File");
 
@@ -1509,29 +1529,37 @@ var transFtp = new JSFTP({
 	pass:""
 });
 
-			transFtp.put(ORG.Machine[machines[trigger_count]].localDir+fileName,"/"+fileName,function(err){
+			transFtp.put("/tmp/"+fileName,"/",function(err){
 				if(err){
 					console.log("Sending Failed to Machine: "+ORG.Machine[machines[trigger_count]].name+"\n");
+					socketServer.sockets.emit("FTP_Error",{Data:ORG.Machine[machines[trigger_count]].name});
+					done = 0;
 					console.log("Error: "+err);
+					trigger_count++;
 				}
 				else{					
 					console.log("File Sent");
 					socketServer.sockets.emit("TransRes",{Data:"Transfer to Machine: "+ORG.Machine[machines[trigger_count]].name+" Successful"});
-					socketServer.sockets.emit("ClientTrigger",{Data:"NEXT"});
-					trigger_count++;				
+					trigger_count++;
+					p = (trigger_count / machines.length) * 100;
+					p = p+"%";
+					socketServer.sockets.emit("ClientTrigger",{Data:"NEXT",progress:p});				
 				}					
 			});
 			
 			transFtp.on("error",function(err){
-			console.log("FTP onError: "+err);
+			console.log("FTP on Error: "+err);
 			socketServer.sockets.emit("FTP_Error",{Data:ORG.Machine[machines[trigger_count]].name});
+			done = 0;
 			trigger_count++;
 		});
 }
 else
 {
-socketServer.sockets.emit("TransRes",{Data:"DONE"});
+socketServer.sockets.emit("TransRes",{Data:"DONE",done:done});
+done = 1;
 console.log("File Transfer to all hosts is complete.");
+trigger_count = 0;
 }
 
 };
@@ -1715,7 +1743,7 @@ var handler = function(error, content){
 count++;
 if(error){
 		console.log("FTP Throw");
-		res.write("<script>alert(.Memory Full. Please Delete some Files.);window.location='http://"+MyLocalIP+":3000/admin/'</script>");
+		res.write("<script>alert('Memory Full. Please Delete some Files');window.location='http://"+MyLocalIP+":3000/admin/'</script>");
 		res.end();
 		console.log(error);
 }

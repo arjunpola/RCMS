@@ -18,7 +18,7 @@
 	<script src="http://localhost:3000/socket.io/socket.io.js"></script>
 	<script>
 var Mdata;
-var socket = io.connect('http://localhost:3031');
+var socket = io.connect('http://localhost:3000');
 
 socket.emit("ReqOrg",{"data":"trigger"});
 
@@ -58,8 +58,9 @@ socket.on("ResOrg",function(data){
         <div class="collapse navbar-collapse navbar-ex1-collapse">
           <ul class="nav navbar-nav side-nav">
 			  <li><a href="http://localhost:3000/admin/">Home</a></li>
-            <li><a href="http://localhost:3000/admin/mpanel">Machines</a></li>
-            <li><a href="http://localhost:3000/admin/stats">Statistics</a></li>
+            <li><a href="http://localhost:3000/admin/mpanel">Monitor Machines</a></li>
+            <!-- <li><a href="http://localhost:3000/admin/stats">Statistics</a></li> -->
+            <li><a href="http://localhost:3000/admin/send_design">Transfer Design</a></li>
           </ul>
 
           <ul class="nav navbar-nav navbar-right navbar-user">

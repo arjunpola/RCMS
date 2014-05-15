@@ -32,8 +32,36 @@
 		}
 		
 var socket = io.connect('http://localhost:3000');
+var psocket = io.connect('http://localhost:3031');
+
+var ips;
+
+psocket.emit("getConnected",{data:"Hello"});
+
+psocket.on("getConnected",function(data){
+
+console.log("Connected IPs: "+data);
+	ips = data.data;
+	
+	ips = JSON.parse(ips);
+	
+	for(var v in ips){
+		console.log(ips[v]);
+	}
 		
-socket.emit("ReqOrg",{Data:"getORG"});
+	
+
+	
+	socket.emit("ReqOrg",{Data:"getORG"});
+});
+
+psocket.on('UpdatePrint',function(data)
+		 {
+			 //console.log(data.Data);
+			 d = data.Data.toString().split(":");
+			 console.log("IP: "+d[0]+"\n Update:"+d[1]);
+			 document.getElementById(d[0]).innerHTML = d[1];
+		 });
 
 socket.on("ResOrg",function(data){
 	console.log(data.Data);
@@ -43,7 +71,12 @@ socket.on("ResOrg",function(data){
 	var i=0;
 	for(i=0;i<Mdata.count;i++)
 	{
-		addMachine(i,Mdata.Machine[i].name);
+		vdata = new Object;
+		
+		vdata.num = i;
+		vdata.ip = Mdata.Machine[i].host;
+		
+		addMachine(vdata,Mdata.Machine[i].name);
 		console.log("Machine Added: "+Mdata.Machine[i].name);
 	}
 
@@ -53,7 +86,17 @@ socket.on("ResOrg",function(data){
 
 									
 									function addMachine(data,name){
-							$('#mpanel_list').append(" <div class='col-sm-4 portfolio-item'><a onclick='machine_det("+data+")' class='portfolio-link' data-toggle='modal'><div class='caption'><div class='caption-content'><i class='fa fa-search-plus fa-3x'></i></div></div><img src='img/machine1.png' class='img-responsive' alt='' /></a><div class='form-group'><p class='form-control-static mname'>"+name+"</p></div></div>");
+									if(ips[data.ip] == "G"){
+							$('#mpanel_list').append(" <div class='col-sm-4 portfolio-item'><a onclick='machine_det("+data.num+")' class='portfolio-link' data-toggle='modal'><div class='caption_green'><div class='caption-content'><span class='weaveno' id='"+data.ip+"'>0</span><i class='fa fa-3x'></i></div></div><img src='img/machine1.png' class='img-responsive' alt='' /></a><div class='form-group'><p class='form-control-static mname'>"+name+"</p></div></div>");
+							}
+							else
+							{
+								
+									$('#mpanel_list').append(" <div class='col-sm-4 portfolio-item'><a onclick='machine_det("+data.num+")' class='portfolio-link' data-toggle='modal'><div class='caption_red'><div class='caption-content'><span class='weaveno' id='"+data.ip+"'>0</span><i class='fa fa-3x'></i></div></div><img src='img/machine1.png' class='img-responsive' alt='' /></a><div class='form-group'><p class='form-control-static mname'>"+name+"</p></div></div>");
+								
+							}
+							
+							
 							}
 		
 							function machine_det(data)
@@ -64,6 +107,8 @@ socket.on("ResOrg",function(data){
 										window.location = "http://localhost:3000/admin/control_panel";
 								});
 							}
+							
+						
 		</script>
 
   </head>
@@ -89,8 +134,9 @@ socket.on("ResOrg",function(data){
         <div class="collapse navbar-collapse navbar-ex1-collapse">
           <ul class="nav navbar-nav side-nav">
             <li><a href="http://localhost:3000/admin/">Home</a></li>
-            <li><a href="http://localhost:3000/admin/mpanel">Machines</a></li>
-            <li><a href="http://localhost:3000/admin/stats">Statistics</a></li>
+            <li><a href="http://localhost:3000/admin/mpanel">Monitor Machines</a></li>
+           <!--  <li><a href="http://localhost:3000/admin/stats">Statistics</a></li> -->
+           <li><a href="http://localhost:3000/admin/send_design">Transfer Design</a></li>
             
           </ul>
 
